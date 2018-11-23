@@ -5,10 +5,10 @@ clean:
 	find . -type f -name '*.log' -delete
 
 system-packages:
-	sudo apt install python-pip -y
+	sudo dnf install python3-pip -y
 
 python-packages:
-	pip install -r requirements.txt
+	pip3 install -r requirements.txt
 
 install: system-packages python-packages
 
