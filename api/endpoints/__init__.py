@@ -1,13 +1,12 @@
 from flask_restplus import Api
 
-from .device import api as cat_api
-from .controller import api as dog_api
+from .thing import api as things
+
 
 api = Api(
-    title='Zoo API',
+    title='Smart API',
     version='1.0',
     description='A simple demo API',
 )
 
-api.add_namespace(cat_api)
-api.add_namespace(dog_api)
+api.add_namespace(things)
