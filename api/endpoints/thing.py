@@ -73,7 +73,7 @@ THING = {
 from cloudant.client import CouchDB
 from flask import request
 
-client = CouchDB('admin', 'admin', url='http://127.0.0.1:5984', connect=True)
+client = CouchDB('admin', 'admin', url='http://localhost:5984', connect=True)
 session = client.session()
 mydb = client['devices']
 

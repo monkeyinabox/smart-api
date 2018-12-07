@@ -15,7 +15,7 @@ mapping = api.model('mapping', {
         }
     )
 
-client = CouchDB('admin', 'admin', url='http://127.0.0.1:5984', connect=True)
+client = CouchDB('admin', 'admin', url='http://localhost:5984', connect=True)
 session = client.session()
 mydb = client['devices']
 
@@ -71,35 +71,3 @@ class MapItem(Resource):
         my_document = mydb[id]
         my_document.delete()
         return None, 204
-
-
-""" 
-@api.route('/')
-class ThingList(Resource):
-    @api.doc('list_devices')
-    @api.marshal_with(thing_list)
-    def get(self):
-        return True
-     
-"""
-""" 
-@api.route('/<id>')
-@api.param('id', 'The thing identifier')
-@api.response(404, 'Mapped Device not found')
-class Thing(Resource):
-    @api.doc('get_thing')
-    @api.marshal_with(thing)
-    def get(self, id):
-        '''Fetch a thing given its identifier'''
-        get_thing(id)
-
-
-def get_thing(id):
-    pass
-    '''
-    for thing in DOGS:
-        if dog['id'] == id:
-            return dog
-    '''
-
- """
