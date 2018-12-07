@@ -1,1 +1,10 @@
-flask-restplus==0.12.1
+flask==0.12.2
+flask_restful==0.3.6
+flask_httpauth==3.2.3
+flask-cors==3.0.3
+pymongo==3.5.1
+sphinx==1.6.4
+sphinx_rtd_theme==0.2.5b1
+pytest-cov==2.5.1
+uwsgi==2.0.15
+jsonschema==2.6.0

@@ -1,21 +1,10 @@
-.PHONY: clean system-packages python-packages install tests run all
+.PHONY: test, install
 
-clean:
-	find . -type f -name '*.pyc' -delete
-	find . -type f -name '*.log' -delete
+install:
+	virtualenv -p python3 venv && \
+		source venv/bin/activate && \
+		pip3 install -r requirements.txt
 
-system-packages:
-	sudo dnf install python3-pip -y
-
-python-packages:
-	pip3 install -r requirements.txt
-
-install: system-packages python-packages
-
-tests:
-	python manage.py test
-
-run:
-	python manage.py run
-
-all: clean install tests run
+test:
+	source venv/bin/activate && \
+		py.test --cov=db --cov=api
