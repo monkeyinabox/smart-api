@@ -9,7 +9,7 @@ mapping_location = api.model('location', {
 })
 
 mapping = api.model('mapping', {
-            "cid": fields.String,
+            "_id": fields.String,
             "tid": fields.String, 
             "location": fields.List(fields.Nested(mapping_location))
         }

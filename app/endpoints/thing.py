@@ -1,11 +1,14 @@
 from flask_restplus import Namespace, Resource, fields
+from flask import request
+import requests
 
 api = Namespace('things', description='things related operations')
 
 thing_data = api.model('data', {
             "name": fields.String,
             "valueType": fields.String, 
-            "valueUnit": fields.String
+            "valueUnit": fields.String,
+            "value":fields.String
         }
     )
 
@@ -33,6 +36,12 @@ thing_list = api.model('List of things', {
     'things': fields.List(fields.Nested(thing))
 })
 
+DATA = {
+    "name": "temp",
+    "valueType": "double",
+    "valueUnit": "celsius",
+    "value": "38"
+}
 
 THING = {
     "thingId" : "38d61641-1475-452f-8ccd-a74ed59f31ca",
@@ -70,39 +79,21 @@ THING = {
 }
 
 
-from cloudant.client import CouchDB
-from flask import request
-
-client = CouchDB('admin', 'admin', url='http://localhost:5984', connect=True)
-session = client.session()
-mydb = client['devices']
 
 @api.route('/')
 @api.response(404, 'Category not found.')
 class Thinglist(Resource):
 
-    @api.marshal_with(thing)
+    @api.marshal_with(thing_list)
     def get(self):
         """
         Returns a category with a list of posts.
         """
-        data = []
-        for document in mydb:
-            data.append(document)
-            print(document)
-        return data
+        return THING
     
-    @api.expect(thing)
-    @api.response(204, 'Category successfully updated.')
-    def post(self):
-        data = request.json
-        mydb.create_document(data)
-        return None, 204
-
-
 
 @api.route('/<id>')
-@api.response(404, 'Category not found.')
+@api.response(404, 'thing not found.')
 class ThingItem(Resource):
 
     @api.marshal_with(thing)
@@ -110,25 +101,19 @@ class ThingItem(Resource):
         """
         Returns a category with a list of posts.
         """
-        return mydb[id]
+        return THING
 
-    @api.expect(thing)
-    @api.response(204, 'Category successfully updated.')
-    def put(self, id):
-        data = request.json
-        my_document = mydb[id]
-        my_document = data
-        my_document.save()
-        return None, 204
 
-    @api.response(204, 'Category successfully deleted.')
-    def delete(self, id):
+@api.route('/<id>/<name>')
+@api.response(404, 'thing not found.')
+class ThingItemValue(Resource):
+
+    @api.marshal_with(thing_data)
+    def get(self, id, name):
         """
-        Deletes blog category.
+        Returns a category with a list of posts.
         """
-        my_document = mydb[id]
-        my_document.delete()
-        return None, 204
+        return DATA
 
 
 """ 

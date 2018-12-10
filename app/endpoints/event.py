@@ -29,4 +29,5 @@ class Event(Resource):
         Returns a category with a list of posts.
         """
         data = request.json
-        return data
+        response = requests.put("http://isorp.ch:1880/event/", params=data)
+        return response
