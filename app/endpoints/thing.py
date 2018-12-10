@@ -83,12 +83,13 @@ THING = {
 @api.route('/')
 @api.response(404, 'Category not found.')
 class Thinglist(Resource):
-
+    @api.doc('list_things')
     @api.marshal_with(thing_list)
     def get(self):
         """
-        Returns a category with a list of posts.
+        Returns a list of all things
         """
+        response = requests.put("http://isorp.ch:1880/event/", params=data)
         return THING
     
 
@@ -99,19 +100,19 @@ class ThingItem(Resource):
     @api.marshal_with(thing)
     def get(self, id):
         """
-        Returns a category with a list of posts.
+        Returns thing description
         """
         return THING
 
 
 @api.route('/<id>/<name>')
-@api.response(404, 'thing not found.')
+@api.response(404, 'thing or sensor not found.')
 class ThingItemValue(Resource):
 
     @api.marshal_with(thing_data)
     def get(self, id, name):
         """
-        Returns a category with a list of posts.
+        Returns last recorded data value.
         """
         return DATA
 

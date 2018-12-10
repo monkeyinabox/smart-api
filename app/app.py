@@ -6,7 +6,8 @@ from endpoints import api
 
 app = Flask(__name__)
 app.wsgi_app = ProxyFix(app.wsgi_app)
+app.config.from_object('config')
 api.init_app(app)
 
-
-app.run(debug=True, host='0.0.0.0')
+if __name__ == '__main__':
+    app.run()
