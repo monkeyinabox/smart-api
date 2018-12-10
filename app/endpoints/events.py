@@ -2,7 +2,7 @@ from flask_restplus import Namespace, Resource, fields
 from flask import request
 import requests
 
-api = Namespace('event', description='event related operations')
+api = Namespace('events', description='executing events on controller')
 
 
 event_parameter = api.model("parameters", {
@@ -17,17 +17,20 @@ event = api.model('event', {
         }
     )
 
-
+CONTROLLER_URL = "http://isorp.ch:1880/events/"
 
 @api.route('/')
-@api.response(404, 'Category not found.')
+@api.response(400, 'Event execution failed')
 class Event(Resource):
     @api.expect(event)
-    @api.marshal_with(event)
     def put(self):
         """
-        Returns a category with a list of posts.
+        Executes an event on controller and return data if avaiable.
         """
         data = request.json
-        response = requests.put("http://isorp.ch:1880/event/", params=data)
-        return response
+        response = requests.put(CONTROLLER_URL, params=data)
+        if not response.ok:
+            return None, 400
+        else:
+            print(response.content)
+            return response.content, 200

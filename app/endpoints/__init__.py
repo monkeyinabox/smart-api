@@ -1,15 +1,16 @@
 from flask_restplus import Api
 
-from .thing import api as things
-from .event import api as events
-from .mapping import api as mapping
+from .things import api as things
+from .events import api as events
+from .assets import api as assets
 
 api = Api(
     title='Smart API',
     version='1.0',
-    description='A simple demo API',
+    prefix='/api/v1',
+    description='Restfull API used to query things, ecexute events and manageing assets'
 )
 
 api.add_namespace(things)
 api.add_namespace(events)
-api.add_namespace(mapping)
+api.add_namespace(assets)

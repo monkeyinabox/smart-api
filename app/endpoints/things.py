@@ -36,49 +36,8 @@ thing_list = api.model('List of things', {
     'things': fields.List(fields.Nested(thing))
 })
 
-DATA = {
-    "name": "temp",
-    "valueType": "double",
-    "valueUnit": "celsius",
-    "value": "38"
-}
 
-THING = {
-    "thingId" : "38d61641-1475-452f-8ccd-a74ed59f31ca",
-    "description": "Fridge in the kitchen",
-    "created": "2018-04-23T18:25:43.511Z",
-    "updated": "2018-04-27T18:25:43.511Z",
-
-    "data": [
-        {
-            "name": "temp",
-            "valueType": "double", 
-            "valueUnit": "celsius",
-        },
-        {
-            "name": "light",
-            "valueType": "boolean", 
-        },
-        {
-            "name": "running",
-            "valueType": "boolean", 
-        }
-    ],
-
-    "events": [
-        {
-            "name": "running",
-            "parameters": [
-                {
-                    "name": "value",
-                    "type": "boolean"
-                }
-            ]
-        }
-    ]
-}
-
-
+FOG_BASE_URL = 'http://localhost:5000'
 
 @api.route('/')
 @api.response(404, 'Category not found.')
@@ -89,8 +48,12 @@ class Thinglist(Resource):
         """
         Returns a list of all things
         """
-        response = requests.put("http://isorp.ch:1880/event/", params=data)
-        return THING
+        response = requests.get(FOG_BASE_URL + "/things")
+        if not response.ok:
+            return None, response.status_code
+        else:
+            print(response.content)
+            return response.content, response.status_code
     
 
 @api.route('/<id>')
@@ -102,48 +65,33 @@ class ThingItem(Resource):
         """
         Returns thing description
         """
-        return THING
+        response = requests.get(FOG_BASE_URL + "/things/"+ id)
+        if not response.ok:
+            return None, response.status_code
+        else:
+            print(response.content)
+            return response.content, response.status_code
+
+
+INFLUX_BASE_URL = 'http://localhost:8086/query'
+headers = { 
+    'cache-control': "no-cache" 
+}
+INFLUX_USER = ""
+INFLUX_PASSWD = ""
 
 
 @api.route('/<id>/<name>')
 @api.response(404, 'thing or sensor not found.')
 class ThingItemValue(Resource):
 
-    @api.marshal_with(thing_data)
     def get(self, id, name):
         """
-        Returns last recorded data value.
+        Returns last recorded data value, Note: return values does not indicate if query provided a valid output!
         """
-        return DATA
-
-
-""" 
-@api.route('/')
-class ThingList(Resource):
-    @api.doc('list_devices')
-    @api.marshal_with(thing_list)
-    def get(self):
-        return True
-     
-"""
-""" 
-@api.route('/<id>')
-@api.param('id', 'The thing identifier')
-@api.response(404, 'Mapped Device not found')
-class Thing(Resource):
-    @api.doc('get_thing')
-    @api.marshal_with(thing)
-    def get(self, id):
-        '''Fetch a thing given its identifier'''
-        get_thing(id)
-
-
-def get_thing(id):
-    pass
-    '''
-    for thing in DOGS:
-        if dog['id'] == id:
-            return dog
-    '''
-
- """
+        querystring = {"db":"telegraf",
+                       "p": INFLUX_USER,
+                       "u": INFLUX_PASSWD,
+                       "q":"SELECT last(\"{}\") FROM \"autogen\".\"mqtt_consumer\" WHERE \"topic\"=\'nexhome/data/{}/{}\'".format(name, id, name)}
+        response = requests.request("GET", INFLUX_BASE_URL, headers=headers, params=querystring, verify=False)
+        return response.json(), response.status_code

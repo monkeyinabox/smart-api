@@ -1,8 +1,9 @@
 from flask_restplus import Namespace, Resource, fields
 from cloudant.client import CouchDB
 from flask import request
-from app import config
+
 api = Namespace('assets', description='asset managmenet operations')
+parser = api.parser()
 
 assets_location = api.model('location', {
             "value": fields.String
@@ -15,18 +16,24 @@ assets = api.model('assets', {
         }
     )
 
-client = CouchDB(config.ASSETS_USER, config.ASSETS_PASSWD, url=config.ASSETS_URL, connect=True)
-session = client.session()
-mydb = client['devices']
+"""
+CouchDB Connecntion initializeiton
+"""
+try:
+    client = CouchDB('admin', 'admin', url='http://localhost:5984', connect=True)
+    session = client.session()
+    mydb = client['assets']
+except:
+    quit()
 
 @api.route('/')
-@api.response(404, 'Category not found.')
+@api.response(404, 'Asset not found.')
 class MapList(Resource):
 
     @api.marshal_with(assets)
     def get(self):
         """
-        Returns a category with a list of posts.
+        Returns a list of all assets.
         """
         data = []
         for document in mydb:
@@ -35,39 +42,60 @@ class MapList(Resource):
         return data
     
     @api.expect(assets)
-    @api.response(204, 'Category successfully updated.')
+    @api.response(204, 'New asset created sucessfully')
+    @api.response(302, 'Asset id already exists')
     def post(self):
+        """
+        Create new asset mapping
+        """
         data = request.json
+        
+        tmp_doc = data['_id'] in mydb
+        if tmp_doc:
+            return 302
+        
         mydb.create_document(data)
         return None, 204
 
 
-
 @api.route('/<id>')
-@api.response(404, 'Category not found.')
+@api.response(404, 'Asset not found.')
 class MapItem(Resource):
-
+    
+    @api.response(200, 'Asset found')
     @api.marshal_with(assets)
     def get(self, id):
         """
-        Returns a category with a list of posts.
+        Returns a spesific assed by id
         """
-        return mydb[id]
-
+        try:
+            if mydb[id]:
+                return mydb[id], 200
+        except KeyError:
+            return None, 404
+        
     @api.expect(assets)
-    @api.response(204, 'Category successfully updated.')
+    @api.response(204, 'Asset successfully updated.')
     def put(self, id):
+        """
+        Update an existing asset
+        """
         data = request.json
         my_document = mydb[id]
         my_document = data
         my_document.save()
         return None, 204
 
-    @api.response(204, 'Category successfully deleted.')
+    @api.response(204, 'Asset successfully deleted.')
     def delete(self, id):
         """
         Deletes an asset.
         """
-        my_document = mydb[id]
-        my_document.delete()
-        return None, 204
+        try:
+            if mydb[id]:
+                my_document = mydb[id]
+                my_document.delete()
+                return None, 204
+        except KeyError:
+            return None, 404
+        
