@@ -1,6 +1,6 @@
 # Flask settings
-DEBUG = True
-HOST = '0.0.0.0'
+FLASK_DEBUG = True
+FLASK_HOST = '0.0.0.0'
 
 # Inventory
 ASSETS_URL = 'http://localhost:5984'

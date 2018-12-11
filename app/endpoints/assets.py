@@ -3,7 +3,6 @@ from cloudant.client import CouchDB
 from flask import request
 
 api = Namespace('Assets', description='asset managmenet operations')
-parser = api.parser()
 
 assets_location = api.model('location', {
             "value": fields.String
