@@ -2,7 +2,7 @@ from flask_restplus import Namespace, Resource, fields
 from flask import request
 import requests
 
-api = Namespace('events', description='executing events on controller')
+api = Namespace('Events', description='executing events on controller')
 
 
 event_parameter = api.model("parameters", {
@@ -32,5 +32,4 @@ class Event(Resource):
         if not response.ok:
             return None, 400
         else:
-            print(response.content)
-            return response.content, 200
+            return response.json(), 200

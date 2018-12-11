@@ -2,7 +2,7 @@ from flask_restplus import Namespace, Resource, fields
 from cloudant.client import CouchDB
 from flask import request
 
-api = Namespace('assets', description='asset managmenet operations')
+api = Namespace('Assets', description='asset managmenet operations')
 parser = api.parser()
 
 assets_location = api.model('location', {

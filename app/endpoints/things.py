@@ -2,7 +2,7 @@ from flask_restplus import Namespace, Resource, fields
 from flask import request
 import requests
 
-api = Namespace('things', description='things related operations')
+api = Namespace('Things', description='things related operations')
 
 thing_data = api.model('data', {
             "name": fields.String,
@@ -53,7 +53,7 @@ class Thinglist(Resource):
             return None, response.status_code
         else:
             print(response.content)
-            return response.content, response.status_code
+            return response.json(), response.status_code
     
 
 @api.route('/<id>')
@@ -65,14 +65,18 @@ class ThingItem(Resource):
         """
         Returns thing description
         """
-        response = requests.get(FOG_BASE_URL + "/things/"+ id)
+        response = requests.get(FOG_BASE_URL + "/things/" + id)
         if not response.ok:
             return None, response.status_code
         else:
             print(response.content)
-            return response.content, response.status_code
+            return response.json(), response.status_code
 
 
+
+"""
+Calling InfluxDB to get last known value of a sensor
+"""
 INFLUX_BASE_URL = 'http://localhost:8086/query'
 headers = { 
     'cache-control': "no-cache" 
@@ -83,6 +87,7 @@ INFLUX_PASSWD = ""
 
 @api.route('/<id>/<name>')
 @api.response(404, 'thing or sensor not found.')
+@api.response(500, 'InfluxDB connection refused')
 class ThingItemValue(Resource):
 
     def get(self, id, name):
