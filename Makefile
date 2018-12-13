@@ -8,7 +8,9 @@ system-packages:
 	sudo dnf install python3-pip -y
 
 python-packages:
-	pip3 install -r requirements.txt
+	virtualenv -p $(which python3) venv && \
+		source venv/bin/activate && \
+		pip3 install -r requirements.txt
 
 install: system-packages python-packages
 
