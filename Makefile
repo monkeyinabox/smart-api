@@ -16,6 +16,6 @@ tests:
 	python manage.py test
 
 run:
-	python manage.py run
+	python run.py
 
 all: clean install tests run

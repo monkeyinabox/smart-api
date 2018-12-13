@@ -4,7 +4,7 @@ from flask import Flask
 from flask_restplus import Api, Resource, fields
 from werkzeug.contrib.fixers import ProxyFix
 
-from .endpoints import api
+from app.endpoints import api
 
 
 def create_app():
