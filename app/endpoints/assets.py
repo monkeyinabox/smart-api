@@ -19,7 +19,7 @@ assets = api.model('assets', {
 CouchDB Connecntion initializeiton
 """
 try:
-    client = CouchDB('admin', 'admin', url='http://10.0.0.12:5984', connect=True)
+    client = CouchDB('admin', 'admin', url='http://lupon.ch:5984', connect=True)
     session = client.session()
     mydb = client['assets']
 except:
