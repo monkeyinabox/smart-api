@@ -2,6 +2,8 @@ from flask_restplus import Namespace, Resource, fields
 from flask import request
 import requests
 
+from app import config
+
 api = Namespace('Things', description='things related operations')
 
 thing_data = api.model('data', {
@@ -36,9 +38,6 @@ thing_list = api.model('List of things', {
     'things': fields.List(fields.Nested(thing))
 })
 
-
-FOG_BASE_URL = 'http://localhost:5000'
-
 @api.route('/')
 @api.response(404, 'Category not found.')
 class Thinglist(Resource):
@@ -48,7 +47,7 @@ class Thinglist(Resource):
         """
         Returns a list of all things
         """
-        response = requests.get(FOG_BASE_URL + "/things")
+        response = requests.get(config.FOG_BASE_URL + "/things")
         if not response.ok:
             return None, response.status_code
         else:
@@ -65,7 +64,7 @@ class ThingItem(Resource):
         """
         Returns thing description
         """
-        response = requests.get(FOG_BASE_URL + "/things/" + id)
+        response = requests.get(config.FOG_BASE_URL + "/things/" + id)
         if not response.ok:
             return None, response.status_code
         else:
@@ -77,13 +76,9 @@ class ThingItem(Resource):
 """
 Calling InfluxDB to get last known value of a sensor
 """
-INFLUX_BASE_URL = 'http://localhost:8086/query'
 headers = { 
     'cache-control': "no-cache" 
 }
-INFLUX_USER = ""
-INFLUX_PASSWD = ""
-
 
 @api.route('/<id>/<name>')
 @api.response(404, 'thing or sensor not found.')
@@ -94,9 +89,10 @@ class ThingItemValue(Resource):
         """
         Returns last recorded data value, Note: return values does not indicate if query provided a valid output!
         """
-        querystring = {"db":"telegraf",
-                       "p": INFLUX_USER,
-                       "u": INFLUX_PASSWD,
+        querystring = {"db":config.INFLUX_DB,
+                       "p": config.INFLUX_USER,
+                       "u": config.INFLUX_PASSWD,
                        "q":"SELECT last(\"{}\") FROM \"autogen\".\"mqtt_consumer\" WHERE \"topic\"=\'nexhome/data/{}/{}\'".format(name, id, name)}
-        response = requests.request("GET", INFLUX_BASE_URL, headers=headers, params=querystring, verify=False)
+        response = requests.request("GET", config.INFLUX_BASE_URL, headers=headers, params=querystring, verify=False)
         return response.json(), response.status_code
+

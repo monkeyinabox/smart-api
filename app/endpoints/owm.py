@@ -1,15 +1,14 @@
 from flask_restplus import Namespace, Resource, fields
 from flask import request
 import requests
+from app import config
 
 api = Namespace('OpenWeatherMap', description='Get current wather codition from OpenWeatherMap')
 
-
-OWM_URL = "https://api.openweathermap.org/data/2.5/"
-APPID = "cd02c22f5d27d943433d755f8e253bf2"
 headers = { 
     'cache-control': "no-cache" 
 }
+
 @api.route('/weather')
 @api.response(400, 'API call failed')
 @api.response(200, 'Success')
@@ -21,8 +20,8 @@ class OwmWeather(Resource):
         """
         querystring = { "id":"7285241", # Citiy ID of Biel/Bienne 
                         "units":"metric",
-                        "APPID": APPID}
-        response = requests.request("GET", OWM_URL+"weather", headers=headers, params=querystring, verify=False)
+                        "APPID": config.OWM_APPID}
+        response = requests.request("GET", config.OWM_URL+"weather", headers=headers, params=querystring, verify=False)
         if not response.ok:
             return None, 400
         else:
@@ -40,8 +39,8 @@ class OwmForecast(Resource):
         """
         querystring = { "id":"7285241", # Citiy ID of Biel/Bienne 
                         "units":"metric",
-                        "APPID": APPID}
-        response = requests.request("GET", OWM_URL+"forecast", headers=headers, params=querystring, verify=False)
+                        "APPID": config.OWM_APPID}
+        response = requests.request("GET", config.OWM_URL+"forecast", headers=headers, params=querystring, verify=False)
         if not response.ok:
             return None, 400
         else:

@@ -1,6 +1,7 @@
 from flask_restplus import Namespace, Resource, fields
 from cloudant.client import CouchDB
 from flask import request
+from app import config
 
 api = Namespace('Assets', description='asset managmenet operations')
 
@@ -19,9 +20,9 @@ assets = api.model('assets', {
 CouchDB Connecntion initializeiton
 """
 try:
-    client = CouchDB('admin', 'admin', url='http://lupon.ch:5984', connect=True)
+    client = CouchDB(config.ASSETS_USER, config.ASSETS_PASSWD, url=config.ASSETS_URL, connect=True)
     session = client.session()
-    mydb = client['assets']
+    mydb = client[config.ASSETS_DB]
 except:
     print("No DB Connection possible")
 
@@ -37,7 +38,6 @@ class MapList(Resource):
         data = []
         for document in mydb:
             data.append(document)
-            print(document)
         return data
     
     @api.expect(assets)
@@ -57,44 +57,92 @@ class MapList(Resource):
         return None, 204
 
 
-@api.route('/<id>')
+@api.route('/thing/<thing_id>')
 @api.response(404, 'Asset not found.')
-class MapItem(Resource):
+class MapItemByThing(Resource):
     
     @api.response(200, 'Asset found')
     @api.marshal_with(assets)
-    def get(self, id):
+    def get(self, thing_id):
         """
-        Returns a spesific assed by id
+        Returns a spesific assed by thing_id
+        """
+
+        for document in mydb:
+            if document['tid'] == thing_id:
+                return document, 200
+
+        else:
+            return None, 404
+
+        
+    @api.expect(assets)
+    @api.response(204, 'Asset successfully updated.')
+    def put(self, thing_id):
+        """
+        Update an existing asset
+        """
+        data = request.json
+
+        for document in mydb:
+            if document['tid'] == thing_id:
+                document = data
+                document.save()
+                return None, 204
+
+        return None, 404
+
+    @api.response(204, 'Asset successfully deleted.')
+    def delete(self, thing_id):
+        """
+        Deletes an asset.
+        """
+        for document in mydb:
+            if document['tid'] == thing_id:
+                document.delete()
+                document.save()
+                return None, 204
+
+        return None, 404
+
+
+@api.route('/asset/<asset_id>')
+@api.response(404, 'Asset not found.')
+class MapItemByAsset(Resource):
+    
+    @api.response(200, 'Asset found')
+    @api.marshal_with(assets)
+    def get(self, asset_id):
+        """
+        Returns a spesific assed by asset_id
         """
         try:
-            if mydb[id]:
-                return mydb[id], 200
+            if mydb[asset_id]:
+                return mydb[asset_id], 200
         except KeyError:
             return None, 404
         
     @api.expect(assets)
     @api.response(204, 'Asset successfully updated.')
-    def put(self, id):
+    def put(self, thing_id):
         """
         Update an existing asset
         """
         data = request.json
-        my_document = mydb[id]
+        my_document = mydb[thing_id]
         my_document = data
         my_document.save()
         return None, 204
 
     @api.response(204, 'Asset successfully deleted.')
-    def delete(self, id):
+    def delete(self, thing_id):
         """
         Deletes an asset.
         """
         try:
-            if mydb[id]:
-                my_document = mydb[id]
+            if mydb[thing_id]:
+                my_document = mydb[thing_id]
                 my_document.delete()
                 return None, 204
         except KeyError:
             return None, 404
-        

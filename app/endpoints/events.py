@@ -2,6 +2,8 @@ from flask_restplus import Namespace, Resource, fields
 from flask import request
 import requests
 
+from app import config
+
 api = Namespace('Events', description='executing events on controller')
 
 
@@ -17,7 +19,7 @@ event = api.model('event', {
         }
     )
 
-CONTROLLER_URL = "http://isorp.ch:1880/events/"
+CONTROLLER_URL = config.CONTROLLER_URL
 
 @api.route('/')
 @api.response(400, 'Event execution failed')
