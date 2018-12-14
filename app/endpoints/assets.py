@@ -6,13 +6,13 @@ from app import config
 api = Namespace('Assets', description='asset managmenet operations')
 
 assets_location = api.model('location', {
-            "value": fields.String
+        "value": fields.String
 })
 
 assets = api.model('assets', {
-            "_id": fields.String(required=True),
-            "tid": fields.String, 
-            "location": fields.List(fields.Nested(assets_location))
+        "_id": fields.String(required=True),
+        "tid": fields.String, 
+        "location": fields.List(fields.Nested(assets_location))
         }
     )
 
@@ -75,12 +75,11 @@ class MapItemByThing(Resource):
         else:
             return None, 404
 
-        
     @api.expect(assets)
     @api.response(204, 'Asset successfully updated.')
     def put(self, thing_id):
         """
-        Update an existing asset
+        Update an existing asset by thing_id
         """
         data = request.json
 
@@ -105,8 +104,7 @@ class MapItemByThing(Resource):
 
         return None, 404
 
-
-@api.route('/asset/<asset_id>')
+@api.route('/<asset_id>')
 @api.response(404, 'Asset not found.')
 class MapItemByAsset(Resource):
     
@@ -126,7 +124,7 @@ class MapItemByAsset(Resource):
     @api.response(204, 'Asset successfully updated.')
     def put(self, thing_id):
         """
-        Update an existing asset
+        Update an existing asset by thing_id
         """
         data = request.json
         my_document = mydb[thing_id]
@@ -137,7 +135,7 @@ class MapItemByAsset(Resource):
     @api.response(204, 'Asset successfully deleted.')
     def delete(self, thing_id):
         """
-        Deletes an asset.
+        Deletes an asset by thing_id
         """
         try:
             if mydb[thing_id]:

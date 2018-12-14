@@ -7,6 +7,7 @@ ASSETS_URL = 'http://dev.lupon.ch:5984'
 ASSETS_USER = 'admin'
 ASSETS_PASSWD = 'admin'
 ASSETS_DB = 'assets'
+WIDGETS_DB = 'widgets'
 
 # Things REST API
 FOG_BASE_URL = 'http://localhost:5000'
