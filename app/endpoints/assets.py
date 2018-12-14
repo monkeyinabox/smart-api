@@ -18,10 +18,12 @@ assets = api.model('assets', {
 """
 CouchDB Connecntion initializeiton
 """
-client = CouchDB('admin', 'admin', url='http://10.0.0.12:5984', connect=True)
-session = client.session()
-mydb = client['assets']
-
+try:
+    client = CouchDB('admin', 'admin', url='http://10.0.0.12:5984', connect=True)
+    session = client.session()
+    mydb = client['assets']
+except:
+    print("No DB Connection possible")
 
 @api.route('/')
 @api.response(404, 'Asset not found.')
