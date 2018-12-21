@@ -55,3 +55,56 @@ class MapList(Resource):
         
         mydb.create_document(data)
         return None, 204
+
+
+@api.route('/<widget_id>/')
+@api.response(404, 'Widget not found.')
+class MapWidgetById(Resource):
+
+    @api.marshal_with(widgets)
+    def get(self, widget_id):
+        """
+        Returns a list of all widgets.
+        """
+        try:
+            if mydb[widget_id]:
+                return mydb[widget_id], 200
+        except KeyError:
+            return None, 404
+
+
+@api.route('/<widget_id>/config/')
+@api.response(404, 'Config not found.')
+class MapConfigByWidget(Resource):
+
+    @api.marshal_with(widgets_config)
+    def get(self, widget_id):
+        """
+        Returns a list of all widgets.
+        """
+        try:
+            if mydb[widget_id]:
+                return mydb[widget_id]["config"], 200
+        except KeyError:
+            return None, 404
+    
+
+    @api.expect(widgets_config)
+    @api.response(204, 'New Config created sucessfully')
+    #@api.response(302, 'Widget id already exists')
+    def post(self, widget_id):
+        """
+        Create new config
+        """
+        data = request.json
+        widget = None
+        try:
+            if mydb[widget_id]:
+                widget = mydb[widget_id], 200
+        except KeyError:
+            return None, 404
+        config = widget[0]["config"]
+        config.append(data)
+        mydb[widget_id].save()
+        return None, 204
+

@@ -29,7 +29,6 @@ assets = api.model('assets', {
         }
     )
 
-
 """
 CouchDB Connecntion initializeiton
 """
@@ -162,7 +161,7 @@ class MapItemByAsset(Resource):
 
 @api.route('/<asset_id>/events/')
 @api.response(404, 'Asset not found.')
-class MapItemByAsset(Resource):
+class MapEventByAsset(Resource):
     
     @api.response(200, 'Asset found')
     @api.marshal_with(assets_event)
@@ -172,7 +171,7 @@ class MapItemByAsset(Resource):
         """
         try:
             if mydb[asset_id]:
-                return mydb[asset_id]["events"], 200
+                return mydb[asset_id]["event"], 200
         except KeyError:
             return None, 404
         
@@ -190,7 +189,7 @@ class MapItemByAsset(Resource):
         except KeyError:
             return None, 404
 
-        asset["event"].add(data)
+        asset["event"].append(data)
         asset.save()
         return None, 204
 
@@ -233,8 +232,6 @@ class Event(Resource):
 class Event(Resource):
 
     def get(self): 
-        threshold = {
-                "value": 123,
-            }
+        value = 123
 
-        return threshold, 200
+        return value, 200
