@@ -30,8 +30,15 @@ class Event(Resource):
         Executes an event on controller and return data if avaiable.
         """
         data = request.json
-        response = requests.put(CONTROLLER_URL, params=data)
+        response = requests.put(CONTROLLER_URL, json=data)
         if not response.ok:
             return None, 400
         else:
             return response.json(), 200
+
+    def get(self):
+        
+        return 123, 200
+
+
+

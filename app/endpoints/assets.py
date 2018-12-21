@@ -9,12 +9,26 @@ assets_location = api.model('location', {
         "value": fields.String
 })
 
+event_parameter = api.model("parameters", {
+                    "value": fields.String,
+                })
+
+assets_event = api.model('event', {
+            "cid": fields.String,
+            "tid": fields.String, 
+            "name": fields.String,
+            "parameters": fields.List(fields.Nested(event_parameter))
+        }
+    )
+
 assets = api.model('assets', {
         "_id": fields.String(required=True),
         "tid": fields.String, 
-        "location": fields.List(fields.Nested(assets_location))
+        "location": fields.List(fields.Nested(assets_location)),
+        "event": fields.List(fields.Nested(assets_event))
         }
     )
+
 
 """
 CouchDB Connecntion initializeiton
@@ -144,3 +158,83 @@ class MapItemByAsset(Resource):
                 return None, 204
         except KeyError:
             return None, 404
+
+
+@api.route('/<asset_id>/events/')
+@api.response(404, 'Asset not found.')
+class MapItemByAsset(Resource):
+    
+    @api.response(200, 'Asset found')
+    @api.marshal_with(assets_event)
+    def get(self, asset_id):
+        """
+        Returns a spesific assed by asset_id
+        """
+        try:
+            if mydb[asset_id]:
+                return mydb[asset_id]["events"], 200
+        except KeyError:
+            return None, 404
+        
+    @api.expect(assets_event)
+    @api.response(204, 'Asset successfully updated.')
+    def put(self, asset_id):
+        """
+        Update an existing asset by asset_id
+        """
+        data = request.json
+        asset = None
+        try:
+            if mydb[asset_id]:
+                asset = mydb[asset_id], 200
+        except KeyError:
+            return None, 404
+
+        asset["event"].add(data)
+        asset.save()
+        return None, 204
+
+
+
+
+
+
+
+"""
+
+Mock data
+
+"""
+
+
+@api.route('/event/')
+@api.response(400, 'Event execution failed')
+class Event(Resource):
+
+    def get(self): 
+        event = {
+                "value": 123,
+                "cid":  "xyz",
+                "tid":  123,
+                "name": "activate",
+                "parameters": 
+                    [
+                        {
+                            "name" : true
+                        }
+                    ]
+            }
+
+        return event, 200
+
+
+@api.route('/threshold/')
+@api.response(400, 'threshold execution failed')
+class Event(Resource):
+
+    def get(self): 
+        threshold = {
+                "value": 123,
+            }
+
+        return threshold, 200
